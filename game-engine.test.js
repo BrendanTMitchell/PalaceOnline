@@ -2071,7 +2071,9 @@ test("the HTML loads only the local JavaScript engine before the UI", () => {
 	assert.doesNotMatch(html, /pyodide|PALACE_FILES|palacegames\.py|web_bridge\.py/i);
 	assert.ok(html.indexOf('src="game-engine.js"') < html.indexOf('src="script.js"'));
 	assert.match(html, /start-with-joker/);
-	assert.match(html, /open-characters/);
+	assert.match(html, /href="#characters"/);
+	assert.match(html, /href="#action-log"/);
+	assert.match(app, /function renderPage/);
 	assert.match(app, /function askOptionNode/);
 	assert.match(app, /if \(known\) return cardNode/);
 	assert.match(app, /seen_hand/);

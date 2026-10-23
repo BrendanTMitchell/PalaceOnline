@@ -51,8 +51,26 @@ button {
 	cursor: pointer;
 }
 
-button:hover:enabled {
+.button-link {
+	display: inline-block;
+	font: inherit;
+	text-decoration: none;
+	background: var(--cream);
+	color: var(--felt);
+	border: 0;
+	border-radius: 6px;
+	padding: 8px 14px;
+	cursor: pointer;
+}
+
+button:hover:enabled,
+.button-link:hover {
 	background: var(--gold);
+}
+
+.button-link:focus-visible {
+	outline: 2px solid var(--gold);
+	outline-offset: 2px;
 }
 
 button:disabled {
@@ -64,6 +82,22 @@ button.primary {
 	background: var(--gold);
 	font-weight: bold;
 	padding: 10px 22px;
+}
+
+.button-link.primary {
+	background: var(--gold);
+	font-weight: bold;
+	padding: 10px 22px;
+}
+
+.action-log {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+	background: var(--felt-light);
+	border-radius: 6px;
+	padding: 12px;
+	max-height: calc(100vh - 130px);
+	overflow: auto;
 }
 
 input, select {

@@ -22,6 +22,8 @@ let busy = false;
 let adminOpen = false;
 let sortHandByValue = false;
 let playerRows = [];
+let appPage = "setup";
+let showAllCharacters = false;
 
 const $ = (id) => document.getElementById(id);
 
@@ -47,8 +49,7 @@ function boot() {
 	selectedCharacter = catalog.characters[0].name;
 	$("loading").hidden = true;
 	buildSetup();
-	$("setup").hidden = false;
-	if (location.hash === "#rules") openRules();
+	renderPage();
 }
 
 try {
@@ -175,8 +176,9 @@ $("start").addEventListener("click", () => {
 		$("setup-error").textContent = result.error;
 		return;
 	}
-	$("setup").hidden = true;
-	$("game").hidden = false;
+	appPage = "game";
+	history.replaceState(null, "", "#game");
+	renderPage();
 	confirmedViewer = null;
 	fastForward = false;
 	selCard = selPile = null;
@@ -189,8 +191,9 @@ $("new-game").addEventListener("click", () => {
 	clearTimeout(botTimer);
 	botTimer = null;
 	state = null;
-	$("game").hidden = true;
-	$("setup").hidden = false;
+	appPage = "setup";
+	history.replaceState(null, "", "#setup");
+	renderPage();
 });
 
 // ---------------------------------------------------------------- dialogs
@@ -261,29 +264,25 @@ function askOptionNode(label) {
 		cardNode(cardFromLabel(cardMatch[0]), { compact: true, inline: true }));
 }
 
-function openCharacterSheets() {
+function renderCharacterSheets() {
 	const currentCharacter = state?.players[state.viewer]?.character || catalog.characters[0].name;
-	const renderSheets = (showAll) => {
-		const body = el("div", { class: "character-sheets" });
-		const characters = showAll
-			? catalog.characters
-			: catalog.characters.filter((character) => character.name === currentCharacter);
-		for (const character of characters) {
-			const players = state?.players.filter((player) => player.character === character.name).map((player) => player.name) || [];
-			const sheet = characterSheet(character.name);
-			if (players.length) sheet.insertBefore(el("p", { class: "hint" }, `Used by: ${players.join(", ")}`), sheet.children[1] || null);
-			body.append(sheet);
-		}
-		showDialog("Character sheets", body, [
-			{ label: showAll ? `Show only ${currentCharacter}` : "Show every character", action: () => renderSheets(!showAll) },
-			{ label: "Close" },
-		]);
-	};
-	renderSheets(false);
+	const characters = showAllCharacters
+		? catalog.characters
+		: catalog.characters.filter((character) => character.name === currentCharacter);
+	const content = $("characters-content");
+	content.replaceChildren();
+	for (const character of characters) {
+		const players = state?.players.filter((player) => player.character === character.name).map((player) => player.name) || [];
+		const sheet = characterSheet(character.name);
+		if (players.length) sheet.insertBefore(el("p", { class: "hint" }, `Used by: ${players.join(", ")}`), sheet.children[1] || null);
+		content.append(sheet);
+	}
+	$("toggle-character-sheets").textContent = showAllCharacters ? `Show only ${currentCharacter}` : "Show every character";
 }
 
-$("show-log").addEventListener("click", () => {
-	if (state) showDialog("Action log", el("pre", {}, state.log.join("\n")), [{ label: "Close" }]);
+$("toggle-character-sheets").addEventListener("click", () => {
+	showAllCharacters = !showAllCharacters;
+	renderCharacterSheets();
 });
 
 // ---------------------------------------------------------------- rules page
@@ -333,32 +332,26 @@ function buildRulesPage() {
 	box.append(el("div", { class: "panel" }, el("h2", {}, "Domain Clashing"), el("pre", { class: "plain" }, catalog.domain_rule)));
 }
 
-let viewBeforeRules = "setup";
+function updateActionLog() {
+	$("action-log-content").textContent = state ? state.log.join("\n") : "No game has started.";
+}
 
-function openRules() {
-	if (!$("rules-page").hidden) return;
-	viewBeforeRules = !$("game").hidden ? "game" : "setup";
-	$("setup").hidden = true;
-	$("game").hidden = true;
-	buildRulesPage();
-	$("rules-page").hidden = false;
+function renderPage() {
+	const target = $(location.hash.slice(1));
+	const page = target?.closest("main") || $(appPage);
+	document.querySelectorAll("body > main").forEach((main) => {
+		main.hidden = main !== page;
+	});
+	document.querySelectorAll("[data-return]").forEach((link) => {
+		link.href = `#${appPage}`;
+	});
+	if (page?.id === "rules") buildRulesPage();
+	if (page?.id === "characters") renderCharacterSheets();
+	if (page?.id === "action-log") updateActionLog();
 	window.scrollTo(0, 0);
-	if (location.hash !== "#rules") location.hash = "rules";
 }
 
-function closeRules() {
-	if ($("rules-page").hidden) return;
-	$("rules-page").hidden = true;
-	$(viewBeforeRules).hidden = false;
-	if (location.hash === "#rules") history.replaceState(null, "", location.pathname + location.search);
-}
-
-document.querySelectorAll(".open-rules").forEach((button) => button.addEventListener("click", openRules));
-$("rules-back").addEventListener("click", closeRules);
-window.addEventListener("hashchange", () => {
-	if (location.hash === "#rules") openRules();
-	else closeRules();
-});
+window.addEventListener("hashchange", renderPage);
 
 // ---------------------------------------------------------------- settings and admin
 
@@ -447,7 +440,6 @@ function openCardEditor() {
 }
 
 document.querySelectorAll(".open-settings").forEach((button) => button.addEventListener("click", openSettings));
-document.querySelectorAll(".open-characters").forEach((button) => button.addEventListener("click", openCharacterSheets));
 
 // ---------------------------------------------------------------- bridge calls
 
@@ -477,6 +469,7 @@ function scheduleBot() {
 
 function applyState(next) {
 	state = next;
+	if (location.hash === "#action-log") updateActionLog();
 	if (state.phase === "over") fastForward = false;
 	render();
 	if (state.popup) showDialog("Six Eyes", el("p", {}, state.popup), [{ label: "OK" }]);

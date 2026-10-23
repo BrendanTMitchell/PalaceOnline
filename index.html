@@ -31,7 +31,8 @@
 			<header>
 				<h1>Palace</h1>
 				<div class="toolbar">
-					<button class="open-rules" type="button">Rules</button>
+					<a class="button-link" href="#rules">Rules</a>
+					<a class="button-link" href="#characters">Characters</a>
 					<button class="open-settings" type="button">Settings</button>
 				</div>
 			</header>
@@ -62,9 +63,9 @@
 			<header>
 				<div id="status"></div>
 				<div class="toolbar">
-					<button id="show-log" type="button">Action log</button>
-					<button class="open-characters" type="button">Character sheets</button>
-					<button class="open-rules" type="button">Rules</button>
+					<a class="button-link" href="#action-log">Action log</a>
+					<a class="button-link" href="#characters">Character sheets</a>
+					<a class="button-link" href="#rules">Rules</a>
 					<button class="open-settings" type="button">Settings</button>
 					<button id="new-game" type="button">New game</button>
 				</div>
@@ -93,12 +94,41 @@
 			</div>
 		</main>
 
-		<main id="rules-page" hidden>
+		<main id="rules" hidden>
 			<header>
 				<h1>Palace rules</h1>
-				<div class="toolbar"><button id="rules-back" type="button" class="primary">Back to game</button></div>
+				<div class="toolbar">
+					<a class="button-link" href="#characters">Characters</a>
+					<a class="button-link" href="#action-log">Action log</a>
+					<a class="button-link primary" data-return href="#setup">Back to game</a>
+				</div>
 			</header>
 			<div id="rules-content"></div>
+		</main>
+
+		<main id="characters" hidden>
+			<header>
+				<h1>Character sheets</h1>
+				<div class="toolbar">
+					<button id="toggle-character-sheets" type="button">Show every character</button>
+					<a class="button-link" href="#rules">Rules</a>
+					<a class="button-link" href="#action-log">Action log</a>
+					<a class="button-link primary" data-return href="#setup">Back to game</a>
+				</div>
+			</header>
+			<div id="characters-content"></div>
+		</main>
+
+		<main id="action-log" hidden>
+			<header>
+				<h1>Action log</h1>
+				<div class="toolbar">
+					<a class="button-link" href="#rules">Rules</a>
+					<a class="button-link" href="#characters">Characters</a>
+					<a class="button-link primary" data-return href="#setup">Back to game</a>
+				</div>
+			</header>
+			<pre id="action-log-content" class="action-log"></pre>
 		</main>
 
 		<div id="modal" class="overlay" hidden>
