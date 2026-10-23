@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Modded Palace Online</title>
+		<link href="https://fonts.googleapis.com/css?family=Lexend" rel="stylesheet">
+		<link rel="stylesheet" href="style.css">
+		<script>
+			window.addEventListener("error", (event) => {
+				const loading = document.getElementById("loading");
+				const message = document.getElementById("loading-text");
+				if (!loading || loading.hidden || !message) return;
+				if (event.target && event.target.tagName === "SCRIPT") {
+					message.textContent = "Could not load " + event.target.src.split("/").pop() + ".";
+				} else {
+					message.textContent = "Could not start: " + (event.message || "JavaScript error");
+				}
+			}, true);
+		</script>
+		<script src="game-engine.js" defer></script>
+		<script src="script.js" defer></script>
+	</head>
+	<body>
+		<div id="loading">
+			<h1>Palace</h1>
+			<p id="loading-text">Loading the game...</p>
+		</div>
+
+		<main id="setup" hidden>
+			<header>
+				<h1>Palace</h1>
+				<div class="toolbar">
+					<button class="open-rules" type="button">Rules</button>
+					<button class="open-settings" type="button">Settings</button>
+				</div>
+			</header>
+			<div class="columns">
+				<section>
+					<h2>Your character</h2>
+					<div id="character-list" class="list"></div>
+					<div id="character-details" class="panel"></div>
+				</section>
+				<section>
+					<h2>Game setup</h2>
+					<div class="panel">
+						<label>Players <input id="player-count" type="number" min="2" value="6"></label>
+						<label>Decks <input id="deck-count" type="number" min="1" value="3"></label>
+						<label>Jokers <input id="joker-count" type="number" min="0" value="8"></label>
+						<label class="checkbox-setting"><input id="start-with-joker" type="checkbox"> Everyone starts with a Joker</label>
+						<div id="player-rows"></div>
+						<button id="restore-defaults" type="button">Restore defaults</button>
+						<p class="hint">Decks hold 52 cards each, without Jokers. With several human players, the device is passed between them.</p>
+					</div>
+					<p id="setup-error" class="error"></p>
+					<button id="start" type="button" class="primary">Start game</button>
+				</section>
+			</div>
+		</main>
+
+		<main id="game" hidden>
+			<header>
+				<div id="status"></div>
+				<div class="toolbar">
+					<button id="show-log" type="button">Action log</button>
+					<button class="open-characters" type="button">Character sheets</button>
+					<button class="open-rules" type="button">Rules</button>
+					<button class="open-settings" type="button">Settings</button>
+					<button id="new-game" type="button">New game</button>
+				</div>
+			</header>
+			<div id="table-layout" class="table-layout">
+				<section id="top-piles" class="top-piles" aria-label="Destroyed and deleted piles"></section>
+				<aside id="left-players" class="opponent-rail" aria-label="Opponents on the left"></aside>
+				<section id="center-table" aria-label="Table">
+					<div class="center-piles">
+						<div id="draw-pile-left"></div>
+						<div id="discard-piles"></div>
+						<div id="draw-pile-right"></div>
+					</div>
+				</section>
+				<aside id="right-players" class="opponent-rail" aria-label="Opponents on the right"></aside>
+				<section id="hand-area" aria-label="Your cards">
+					<h2 id="hand-title"></h2>
+					<div class="hand-content">
+						<div id="cards" class="cards"></div>
+						<div class="hand-controls">
+							<div id="draw-choice"></div>
+							<div id="actions" class="actions"></div>
+						</div>
+					</div>
+				</section>
+			</div>
+		</main>
+
+		<main id="rules-page" hidden>
+			<header>
+				<h1>Palace rules</h1>
+				<div class="toolbar"><button id="rules-back" type="button" class="primary">Back to game</button></div>
+			</header>
+			<div id="rules-content"></div>
+		</main>
+
+		<div id="modal" class="overlay" hidden>
+			<div class="dialog">
+				<h3 id="modal-title"></h3>
+				<div id="modal-body"></div>
+				<div id="modal-buttons"></div>
+			</div>
+		</div>
+	</body>
+</html>
